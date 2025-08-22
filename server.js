@@ -101,7 +101,7 @@ app.post("/create-video", async (req, res) => {
     const videoFile = path.join(workDir, "video.mp4");
     // scale to fit and pad to requested size
     const vf = `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2,format=yuv420p`;
-    await run(`ffmpeg -y -r ${fps} -f concat -safe 0 -i "${concatTxt}" -vf "${vf}" -c:v libx264 -pix_fmt yuv420p "${videoFile}"`);
+    await run(`ffmpeg -y -f concat -safe 0 -i "${concatTxt}" -vf "${vf}" -pix_fmt yuv420p -c:v libx264 -vsync vfr "${videoFile}"`);
 
     // 5) mux audio; -shortest ensures sync to the shorter of (video, audio)
     const finalFile = path.join(workDir, "final.mp4");
@@ -154,3 +154,4 @@ app.post("/create-video", async (req, res) => {
 
 app.get("/", (_, res) => res.send("OK"));
 app.listen(8080, () => console.log("Video service on :8080"));
+
