@@ -97,12 +97,10 @@ app.post("/create-video", async (req, res) => {
     concatContent += `file ${localImgs[localImgs.length - 1].file}\n`;
     await fsPromises.writeFile(concatTxt, concatContent, "utf8");
 
-    // 4) build video from images (no FPS needed)
-   // scale to fit and pad to requested size
-   const videoFile = path.join(workDir, "video.mp4");
-   const vf = `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2,format=yuv420p`;
-
-   // -vsync vfr ensures each image is displayed for its specified duration
+    // 4) build video from images
+    const videoFile = path.join(workDir, "video.mp4");
+    // scale to fit and pad to requested size
+    const vf = `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2,format=yuv420p`;
     await run(`ffmpeg -y -f concat -safe 0 -i "${concatTxt}" -vf "${vf}" -pix_fmt yuv420p -c:v libx264 -vsync vfr "${videoFile}"`);
 
     // 5) mux audio; -shortest ensures sync to the shorter of (video, audio)
